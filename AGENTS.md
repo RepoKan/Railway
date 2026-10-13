@@ -10,8 +10,9 @@ The shared plugin payload lives in `plugins/railway`.
 - OpenAI Codex: `plugins/railway/.codex-plugin/plugin.json`, `plugins/railway/.mcp.json`, and the repo marketplace at `.agents/plugins/marketplace.json`.
 - Grok Build / xAI marketplace: resolves `plugins/railway` as the plugin by using a remote source subpath (`source.path: "plugins/railway"`). The shared payload therefore exposes `plugins/railway/.grok-plugin/plugin.json`, `plugins/railway/.grok-plugin/mcp.json`, `plugins/railway/skills`, and `plugins/railway/hooks` directly.
 - Cursor: `plugins/railway/.cursor-plugin/plugin.json`, `plugins/railway/.cursor-plugin/mcp.json`, and the repo marketplace at `.cursor-plugin/marketplace.json`.
+- Google Antigravity: `plugins/railway/.antigravity-plugin/plugin.json` and `plugins/railway/mcp_config.json`, with `plugins/railway/README.md` rendered as the pre-install page and `plugins/railway/assets/logo.svg` as the Marketplace logo. Antigravity resolves every component path from `plugins/railway`, so only `plugin.json` may live in `.antigravity-plugin/`; skills, MCP config, and assets stay at the plugin root. Antigravity's MCP config uses `serverUrl` instead of `type`/`url`, and namespaces each server key as `<plugin>-<key>` (`railway-mcp`).
 
-Claude Code and Grok Build also use `plugins/railway/hooks/hooks.json` for the existing Railway CLI/API auto-approval hook. The hook command resolves `${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/hooks/auto-approve-api.sh`.
+Claude Code and Grok Build also use `plugins/railway/hooks/hooks.json` for the existing Railway CLI/API auto-approval hook. The hook command resolves `${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/hooks/auto-approve-api.sh`. Antigravity does not load this hook: it only reads `hooks.json` at the plugin root, names its shell tool `run_command`, and expects a `decision` response instead of `hookSpecificOutput`.
 
 ## Skill model
 
@@ -69,7 +70,7 @@ Use Railway CLI for context-aware local operations.
 
 Published plugin MCP configs use Railway's hosted MCP server for single-click setup.
 
-- Keep `plugins/railway/.mcp.json`, `plugins/railway/.cursor-plugin/mcp.json`, and `plugins/railway/.grok-plugin/mcp.json` in sync.
+- Keep `plugins/railway/.mcp.json`, `plugins/railway/.cursor-plugin/mcp.json`, `plugins/railway/.grok-plugin/mcp.json`, and `plugins/railway/mcp_config.json` (Antigravity's `serverUrl` schema) in sync.
 - Plugin MCP configs must point at `https://mcp.railway.com` with HTTP transport.
 - Do not store credentials in plugin MCP config. Remote MCP authentication uses Railway OAuth.
 - CLI installation defaults to the hosted proxy (`railway mcp`, with `mcp proxy` retained as an alias). `railway mcp install --oauth` selects direct HTTP/editor OAuth; `--local` selects `railway mcp local`. `--remote` is an alias for the proxy default. Published plugin configs keep direct HTTP transport.
@@ -105,7 +106,8 @@ When editing this plugin:
 - Keep references action-oriented with reasoning. Explain why, not only what.
 - Keep CLI behavior claims aligned with Railway docs and CLI source.
 - Keep a single "Validated against" block at the end of each reference.
-- Keep plugin versions aligned across the Claude Code, Codex, Cursor, and Grok (`plugins/railway/.grok-plugin/plugin.json`) manifests when plugin behavior changes.
+- Keep plugin versions aligned across the Claude Code, Codex, Cursor, Grok (`plugins/railway/.grok-plugin/plugin.json`), and Antigravity (`plugins/railway/.antigravity-plugin/plugin.json`) manifests when plugin behavior changes.
+- Keep the `use-railway` skill `description` at or under 1024 characters; Antigravity and the Agent Skills spec reject longer descriptions.
 - For Grok/xAI marketplace entries, use the remote source subpath `plugins/railway` instead of adding root-level symlinks or copies.
 - Bump `version` in `plugins/railway/.claude-plugin/plugin.json` in any PR that changes skill content or published plugin behavior. Claude Code uses this version to detect updates, and users will not receive changes without a bump.
 
