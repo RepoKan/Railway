@@ -3,7 +3,7 @@
 Agent skills for [Railway](https://railway.com), following the [Agent Skills](https://agentskills.io) format. 
 
 This repository also includes Railway plugin packaging for ChatGPT, OpenAI Codex,
-Claude Code, Grok Build, and Cursor. Each plugin package includes the
+Claude Code, Grok Build, Cursor, and Google Antigravity. Each plugin package includes the
 `use-railway` Agent Skill and Railway's hosted MCP server. Railway is also
 available as a connector for Claude.
 
@@ -128,6 +128,19 @@ Grok's TUI:
 
 The official marketplace entry resolves the nested plugin at `plugins/railway`
 from this repository and pins it to a specific commit.
+
+### Google Antigravity
+
+Install the plugin from this repository:
+
+1. Open Antigravity.
+2. Click **Customizations** in the sidebar, then select **Plugins**.
+3. Click **+ Install from URL**.
+4. Enter `https://github.com/railwayapp/railway-skills`.
+5. Connect your Railway account when prompted.
+
+- Plugin manifest: [`plugins/railway/.antigravity-plugin/plugin.json`](plugins/railway/.antigravity-plugin/plugin.json)
+- MCP config: [`plugins/railway/mcp_config.json`](plugins/railway/mcp_config.json)
 
 ## Skill surface
 
