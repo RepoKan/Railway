@@ -1,0 +1,41 @@
+name: Upstream update channel
+
+on:
+  schedule:
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: railway-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'RepoKan/Railway'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Configure temporary Git authentication
+        run: gh auth setup-git
+      - name: Import upstream branches and tags atomically
+        run: python3 .github/scripts/sync-upstream.py
+      - name: Publish update status and comparison link
+        run: |
+          set -euo pipefail
+          git fetch origin refs/heads/upstream/main:refs/remotes/origin/upstream/main
+          upstream_sha=$(git rev-parse refs/remotes/origin/upstream/main)
+          if git merge-base --is-ancestor "$upstream_sha" HEAD; then
+            echo "Supported main already contains upstream $upstream_sha" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "Updates available at upstream $upstream_sha" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Review and create an update PR: https://github.com/RepoKan/Railway/compare/main...upstream/main?expand=1' >> "$GITHUB_STEP_SUMMARY"

@@ -1,5 +1,17 @@
 # Railway Skills
 
+## RepoKan workspace
+
+This fork preserves all upstream branches and Git history. Start with the
+[RepoKan setup and update guide](docs/repokan-workspace.md) for repository-scoped
+skill discovery, Codex marketplace installation, ChatGPT OAuth, and update checks.
+
+- [Workspace validation](https://github.com/RepoKan/Railway/actions/workflows/repokan-validate.yml)
+- [Upstream update channel](https://github.com/RepoKan/Railway/actions/workflows/upstream-sync.yml)
+- [Review available updates](https://github.com/RepoKan/Railway/compare/main...upstream/main?expand=1)
+
+The official Railway plugin payload and its MIT attribution are retained below.
+
 Agent skills for [Railway](https://railway.com), following the [Agent Skills](https://agentskills.io) format. 
 
 This repository also includes Railway plugin packaging for ChatGPT, OpenAI Codex,

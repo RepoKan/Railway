@@ -1,0 +1,44 @@
+name: RepoKan workspace validation
+
+on:
+  push:
+    branches: [main, 'repokan/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify skill discovery and hosted MCP packaging
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path.cwd()
+          skill = root / 'plugins/railway/skills/use-railway'
+          assert (root / '.agents/skills/use-railway').resolve() == skill
+          assert (skill / 'SKILL.md').is_file()
+          for path in root.rglob('*.json'):
+              if '.git' not in path.parts:
+                  json.loads(path.read_text())
+          manifest = json.loads((root / 'plugins/railway/.codex-plugin/plugin.json').read_text())
+          assert (root / 'plugins/railway' / manifest['skills']).is_dir()
+          marketplace = json.loads((root / '.agents/plugins/marketplace.json').read_text())
+          assert (root / marketplace['plugins'][0]['source']['path']).is_dir()
+          for rel in ['.mcp.json', '.cursor-plugin/mcp.json', '.grok-plugin/mcp.json']:
+              data = json.loads((root / 'plugins/railway' / rel).read_text())
+              server = data['mcpServers']['railway']
+              assert server == {'type': 'http', 'url': 'https://mcp.railway.com'}
+          print('Skill discovery, JSON, marketplace and OAuth MCP packaging passed')
+          PY
+      - name: Verify update channel using local Git repositories
+        run: python -m unittest discover -s .github/tests -v
